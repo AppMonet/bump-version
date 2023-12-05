@@ -21,6 +21,7 @@ async function run() {
             .split(',')
             .map((x) => x.trim())
             .filter(Boolean) || []
+    const dryRun = core.getInput('dry_run') || false
     const GITHUB_REF = process.env.GITHUB_REF || ''
     const branch =
         core.getInput('branch') ||
@@ -65,27 +66,30 @@ async function run() {
         })
         linesReplaced = res.linesReplaced
     }
-    const tagName = prefix ? prefix + '_' + newVersion : newVersion
-    const tagMsg = `${capitalize(prefix) + ' '}Version ${newVersion} [skip ci]`
 
-    await commit({
-        USER_EMAIL: 'bump-version@version.com',
-        USER_NAME: 'bump_version',
-        GITHUB_TOKEN: githubToken,
-        MESSAGE: tagMsg,
-        tagName,
-        tagMsg,
-        branch,
-    })
-    await createTag({
-        tagName,
-        tagMsg,
-    })
+    if(!dryRun) {
+        const tagName = prefix ? prefix + '_' + newVersion : newVersion
+        const tagMsg = `${capitalize(prefix) + ' '}Version ${newVersion} [skip ci]`
+
+        await commit({
+            USER_EMAIL: 'bump-version@version.com',
+            USER_NAME: 'bump_version',
+            GITHUB_TOKEN: githubToken,
+            MESSAGE: tagMsg,
+            tagName,
+            tagMsg,
+            branch,
+        })
+        await createTag({
+            tagName,
+            tagMsg,
+        })
+        await createAnnotations({ githubToken, newVersion: tagMsg, linesReplaced })
+        core.setOutput('version', newVersion)
+        core.setOutput('prefix', prefix)
+        core.info(`new version ${tagMsg}`)
+    }
     console.log('setting output version=' + newVersion + ' prefix=' + prefix)
-    await createAnnotations({ githubToken, newVersion: tagMsg, linesReplaced })
-    core.setOutput('version', newVersion)
-    core.setOutput('prefix', prefix)
-    core.info(`new version ${tagMsg}`)
 }
 
 try {
