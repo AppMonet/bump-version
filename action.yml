@@ -30,7 +30,6 @@ inputs:
   dry_run:
     description: "If true it will generate a version without a commit."
     required: false
-    default: false
 outputs:
   version:
     description: New version
