@@ -90,3 +90,6 @@ typings/
 
 # DynamoDB Local files
 .dynamodb/
+
+# Node module
+node_modules/
