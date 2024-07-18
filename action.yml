@@ -36,7 +36,7 @@ outputs:
   prefix:
     description: Prefix if set
 runs:
-  using: "node20"
+  using: "node12"
   main: "lib/main.js"
 # [bump]
 # 2.0.56 // TODO regex match the rag
